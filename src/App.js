@@ -1,12 +1,12 @@
 import "./App.css";
 
-import { Component } from "react";
+import { useState, useEffect } from "react";
 
 //import custom Components
 import CardList from "./components/card-list/card-list.component";
 import SearchBox from "./components/search-box/search-box.component";
 
-class App extends Component {
+/* class App extends Component {
   constructor() {
     super();
     this.state = {
@@ -55,6 +55,47 @@ class App extends Component {
       </div>
     );
   }
-}
+} */
+
+const App = () => {
+  console.log("STart");
+  const [monsters, setMonsters] = useState([]);
+  const [searchField, setSearchField] = useState("");
+  const [filteredMonsters, setFilteredMonsters] = useState(monsters);
+
+  const searchHandler = (e) => {
+    const searchFieldValue = e.target.value.toLowerCase();
+    setSearchField(searchFieldValue);
+  };
+
+  useEffect(() => {
+    console.log("Render1");
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((res) => res.json())
+      .then((users) => {
+        setMonsters(users);
+      });
+  }, []);
+
+  useEffect(() => {
+    console.log("Render2");
+    const monstersFilter = monsters.filter((monster) => {
+      const { name, email } = monster;
+      return (
+        name.toLowerCase().includes(searchField) ||
+        email.toLowerCase().includes(searchField)
+      );
+    });
+    setFilteredMonsters(monstersFilter);
+  }, [monsters, searchField]);
+
+  return (
+    <div className="App">
+      <h1 className="app-title">Creatures Compendium</h1>
+      <SearchBox placeholder="search Monsters" changeHandler={searchHandler} />
+      <CardList monsters={filteredMonsters} />
+    </div>
+  );
+};
 
 export default App;
